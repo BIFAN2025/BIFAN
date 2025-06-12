@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>개막식 좌석 조회</title>
+  <style>
+    body {
+      font-family: 'Arial', sans-serif;
+      background-color: #f9f9f9;
+      padding: 50px;
+      text-align: center;
+    }
+    .container {
+      background: white;
+      padding: 30px;
+      border-radius: 10px;
+      max-width: 500px;
+      margin: auto;
+      box-shadow: 0 0 10px rgba(0,0,0,0.1);
+    }
+    input[type="text"] {
+      width: 80%;
+      padding: 10px;
+      margin-top: 10px;
+      border: 1px solid #ccc;
+      border-radius: 5px;
+    }
+    button {
+      padding: 10px 20px;
+      margin-top: 10px;
+      background-color: #007BFF;
+      color: white;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+    button:hover {
+      background-color: #0056b3;
+    }
+    .result {
+      margin-top: 20px;
+      font-size: 1.1em;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h2>개막식 좌석 조회</h2>
+    <input type="text" id="nameInput" placeholder="성함을 입력하세요" />
+    <br />
+    <button onclick="lookupSeat()">조회</button>
+    <div class="result" id="result"></div>
+  </div>
+
+  <script>
+    const sheetUrl = 'https://docs.google.com/spreadsheets/d/1vJDO2ED45nZtkxJC9ii_hLPHYJhn2IoBQXGDoiKHZA4/gviz/tq?tqx=out:json&sheet=개막식';
+
+    async function lookupSeat() {
+      const name = document.getElementById('nameInput').value.trim();
+      const resultEl = document.getElementById('result');
+      resultEl.textContent = '조회 중...';
+
+      try {
+        const res = await fetch(sheetUrl);
+        const text = await res.text();
+        const json = JSON.parse(text.substr(47).slice(0, -2));
+        const rows = json.table.rows;
+        let found = false;
+
+        for (let row of rows) {
+          const 성함 = row.c[20]?.v;
+          const 구역Raw = row.c[27]?.v || '';
+          const 구역Parts = 구역Raw.trim().split(' ');
+
+          let 구역;
+          if (구역Parts.length === 2) {
+            구역 = `${구역Parts[0]} ${구역Parts[1]}GATE`;
+          } else {
+            구역 = 구역Raw.trim();
+          }
+
+          const 블럭 = (row.c[28]?.v || '').trim();
+          const 행 = row.c[29]?.v;
+          const 열 = row.c[30]?.v;
+
+          if (성함 && 성함.trim() === name) {
+            const seat = `${구역} ${블럭}-${행}-${열}`;
+            resultEl.textContent = `${성함}님의 좌석은 ${seat}입니다.`;
+            found = true;
+            break;
+          }
+        }
+
+        if (!found) {
+          resultEl.textContent = '등록되지 않은 이름입니다.';
+        }
+      } catch (error) {
+        resultEl.textContent = '데이터를 불러오는 중 오류가 발생했습니다.';
+        console.error(error);
+      }
+    }
+  </script>
+</body>
+</html>
