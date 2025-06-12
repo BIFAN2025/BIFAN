@@ -2,7 +2,7 @@
 <html lang="ko">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" />
   <title>BIFAN2025 좌석 조회</title>
   <style>
     body {
@@ -10,67 +10,65 @@
       background: url('https://www.bifan.kr/presskit/2025/10/images/press_10_01.jpg') no-repeat center center fixed;
       background-size: cover;
       color: #fff;
-      padding: 30px 15px;
+      padding: 50px 20px;
       text-align: center;
       min-height: 100vh;
       margin: 0;
       box-sizing: border-box;
     }
     .overlay {
-      background-color: rgba(0,0,0,0.65);
+      background-color: rgba(0,0,0,0.6);
       max-width: 700px;
       margin: auto;
       border-radius: 15px;
-      padding: 25px 20px;
+      padding: 30px;
       box-shadow: 0 0 20px rgba(0,0,0,0.7);
     }
     h1 {
       margin-bottom: 5px;
-      font-size: 2.2em;
+      font-size: 2.4em;
     }
     h3 {
       margin-top: 0;
       font-weight: normal;
-      font-size: 1.25em;
+      font-size: 1.3em;
       color: #ccc;
     }
     p.description {
-      font-size: 1em;
-      line-height: 1.5em;
+      font-size: 1.05em;
+      line-height: 1.6em;
       margin-bottom: 20px;
     }
     .bold {
       font-weight: bold;
     }
     .en-description {
-      font-size: 0.85em;
+      font-size: 0.9em;
       color: #eaeaea;
-      line-height: 1.4em;
-      margin-bottom: 20px;
+      line-height: 1.5em;
     }
     .en-description .bold {
       font-weight: bold;
       color: #fff;
     }
     input[type="text"] {
-      width: 90%;
-      max-width: 400px;
-      padding: 14px;
-      margin-top: 12px;
+      width: 80%;
+      padding: 12px;
+      margin-top: 10px;
       border: none;
       border-radius: 8px;
-      font-size: 1.1em;
+      font-size: 1em;
       box-sizing: border-box;
     }
     button {
-      padding: 14px 30px;
-      margin-top: 18px;
+      padding: 12px 25px;
+      margin-top: 15px;
       background-color: #007BFF;
       color: white;
       border: none;
-      border-radius: 8px;
       cursor: pointer;
-      font-size: 1.1em;
+      border-radius: 8px;
+      font-size: 1em;
       transition: background-color 0.3s ease;
     }
     button:hover {
@@ -84,9 +82,8 @@
       color: #000;
       padding: 15px;
       border-radius: 10px;
-      max-height: 250px;
+      max-height: 300px;
       overflow-y: auto;
-      word-break: break-word;
     }
     .result div {
       margin-bottom: 10px;
@@ -95,14 +92,15 @@
       border-radius: 5px;
     }
 
-    /* 모바일 대응 */
+    /* 모바일 최적화 */
     @media screen and (max-width: 480px) {
       body {
-        padding: 20px 10px;
+        padding: 30px 10px;
       }
       .overlay {
-        padding: 20px 15px;
-        border-radius: 12px;
+        padding: 20px;
+        max-width: 100%;
+        border-radius: 10px;
       }
       h1 {
         font-size: 1.8em;
@@ -110,26 +108,17 @@
       h3 {
         font-size: 1.1em;
       }
-      p.description {
-        font-size: 0.95em;
-        margin-bottom: 18px;
-      }
-      .en-description {
-        font-size: 0.75em;
-        margin-bottom: 18px;
-      }
       input[type="text"] {
-        width: 95%;
-        font-size: 1em;
-        padding: 12px;
+        width: 100%;
+        font-size: 1.1em;
       }
       button {
-        font-size: 1em;
-        padding: 12px 25px;
+        width: 100%;
+        font-size: 1.1em;
       }
       .result {
         font-size: 1em;
-        max-height: 200px;
+        max-height: 250px;
       }
     }
   </style>
