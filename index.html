@@ -15,7 +15,7 @@
       background: white;
       padding: 30px;
       border-radius: 10px;
-      max-width: 500px;
+      max-width: 600px;
       margin: auto;
       box-shadow: 0 0 10px rgba(0,0,0,0.1);
     }
@@ -25,6 +25,7 @@
       margin-top: 10px;
       border: 1px solid #ccc;
       border-radius: 5px;
+      font-size: 1em;
     }
     button {
       padding: 10px 20px;
@@ -34,6 +35,7 @@
       border: none;
       border-radius: 5px;
       cursor: pointer;
+      font-size: 1em;
     }
     button:hover {
       background-color: #0056b3;
@@ -41,6 +43,13 @@
     .result {
       margin-top: 20px;
       font-size: 1.1em;
+      text-align: left;
+    }
+    .result div {
+      margin-bottom: 10px;
+      padding: 8px;
+      background: #eef5ff;
+      border-radius: 5px;
     }
   </style>
 </head>
@@ -61,38 +70,43 @@
       const resultEl = document.getElementById('result');
       resultEl.textContent = '조회 중...';
 
+      if (!name) {
+        resultEl.textContent = '이름을 입력해 주세요.';
+        return;
+      }
+
       try {
         const res = await fetch(sheetUrl);
         const text = await res.text();
         const json = JSON.parse(text.substr(47).slice(0, -2));
+
         const rows = json.table.rows;
-        let found = false;
+        const matches = [];
 
         for (let row of rows) {
-          const 성함 = row.c[20]?.v;
-          const 구역Raw = row.c[27]?.v || '';
-          const 구역Parts = 구역Raw.trim().split(' ');
+          const 성함 = row.c[20]?.v;       // U열 성함
+          const 소속 = row.c[21]?.v;       // V열 소속/작품명
+          const 직함 = row.c[22]?.v;       // W열 직함
+          const 구역 = row.c[27]?.v;       // AB열 구역
+          const 블럭 = row.c[28]?.v;       // AC열 블럭
+          const 행 = row.c[29]?.v;         // AD열 행
+          const 열 = row.c[30]?.v;         // AE열 열
 
-          let 구역;
-          if (구역Parts.length === 2) {
-            구역 = `${구역Parts[0]} ${구역Parts[1]}GATE`;
-          } else {
-            구역 = 구역Raw.trim();
-          }
+          if (성함 && 성함.includes(name)) {
+            // 구역에 'GATE' 붙이기 (예: '2F 1' -> '2F 1GATE')
+            let 구역표시 = 구역;
+            if (구역 && /\d$/.test(구역)) {
+              구역표시 += 'GATE';
+            }
 
-          const 블럭 = (row.c[28]?.v || '').trim();
-          const 행 = row.c[29]?.v;
-          const 열 = row.c[30]?.v;
-
-          if (성함 && 성함.trim() === name) {
-            const seat = `${구역} ${블럭}-${행}-${열}`;
-            resultEl.textContent = `${성함}님의 좌석은 ${seat}입니다.`;
-            found = true;
-            break;
+            const seat = `${구역표시} ${블럭}-${행}-${열}`;
+            matches.push(`${성함} (${소속 || '소속없음'}, ${직함 || '직함없음'}) — 좌석: ${seat}`);
           }
         }
 
-        if (!found) {
+        if (matches.length > 0) {
+          resultEl.innerHTML = matches.map(m => `<div>${m}</div>`).join('');
+        } else {
           resultEl.textContent = '등록되지 않은 이름입니다.';
         }
       } catch (error) {
@@ -103,3 +117,4 @@
   </script>
 </body>
 </html>
+
