@@ -3,47 +3,87 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>개막식 좌석 조회</title>
+  <title>BIFAN2025 좌석 조회</title>
   <style>
     body {
       font-family: 'Arial', sans-serif;
-      background-color: #f9f9f9;
-      padding: 50px;
+      background: url('https://www.bifan.kr/presskit/2025/10/images/press_10_01.jpg') no-repeat center center fixed;
+      background-size: cover;
+      color: #fff;
+      padding: 50px 20px;
       text-align: center;
+      min-height: 100vh;
+      margin: 0;
+      box-sizing: border-box;
     }
-    .container {
-      background: white;
-      padding: 30px;
-      border-radius: 10px;
-      max-width: 600px;
+    .overlay {
+      background-color: rgba(0,0,0,0.6);
+      max-width: 700px;
       margin: auto;
-      box-shadow: 0 0 10px rgba(0,0,0,0.1);
+      border-radius: 15px;
+      padding: 30px;
+      box-shadow: 0 0 20px rgba(0,0,0,0.7);
+    }
+    h1 {
+      margin-bottom: 5px;
+      font-size: 2.4em;
+    }
+    h3 {
+      margin-top: 0;
+      font-weight: normal;
+      font-size: 1.3em;
+      color: #ccc;
+    }
+    p.description {
+      font-size: 1.05em;
+      line-height: 1.6em;
+      margin-bottom: 20px;
+    }
+    .bold {
+      font-weight: bold;
+    }
+    .en-description {
+      font-size: 0.9em;
+      color: #eaeaea;
+      line-height: 1.5em;
+    }
+    .en-description .bold {
+      font-weight: bold;
+      color: #fff;
     }
     input[type="text"] {
       width: 80%;
-      padding: 10px;
+      padding: 12px;
       margin-top: 10px;
-      border: 1px solid #ccc;
-      border-radius: 5px;
+      border: none;
+      border-radius: 8px;
       font-size: 1em;
+      box-sizing: border-box;
     }
     button {
-      padding: 10px 20px;
-      margin-top: 10px;
+      padding: 12px 25px;
+      margin-top: 15px;
       background-color: #007BFF;
       color: white;
       border: none;
-      border-radius: 5px;
+      border-radius: 8px;
       cursor: pointer;
       font-size: 1em;
+      transition: background-color 0.3s ease;
     }
     button:hover {
       background-color: #0056b3;
     }
     .result {
-      margin-top: 20px;
+      margin-top: 25px;
       font-size: 1.1em;
       text-align: left;
+      background-color: rgba(255,255,255,0.9);
+      color: #000;
+      padding: 15px;
+      border-radius: 10px;
+      max-height: 300px;
+      overflow-y: auto;
     }
     .result div {
       margin-bottom: 10px;
@@ -54,8 +94,21 @@
   </style>
 </head>
 <body>
-  <div class="container">
-    <h2>개막식 좌석 조회</h2>
+  <div class="overlay">
+    <h1>BIFAN2025 좌석 조회</h1>
+    <h3>BIFAN2025 Seat Finder</h3>
+    <p class="description">
+      <span class="bold">제29회 부천국제판타스틱영화제 개막식에 오신 것을 환영합니다!</span><br />
+      성함을 입력하시면 좌석 번호를 조회하실 수 있습니다.<br />
+      문의사항이 있으실 경우 주변 스태프 혹은 자원활동가에게 질문해 주시기 바랍니다.<br />
+      감사합니다.
+    </p>
+    <p class="en-description">
+      <span class="bold">Welcome to the 29th BIFAN Opening Ceremony!</span><br />
+      Please enter your name to check your seat number.<br />
+      If you have any questions, feel free to ask a nearby staff member or volunteer.<br />
+      Thank you.
+    </p>
     <input type="text" id="nameInput" placeholder="성함을 입력하세요" />
     <br />
     <button onclick="lookupSeat()">조회</button>
@@ -84,21 +137,19 @@
         const matches = [];
 
         for (let row of rows) {
-          const 성함 = row.c[20]?.v;       // U열 성함
-          const 소속 = row.c[21]?.v;       // V열 소속/작품명
-          const 직함 = row.c[22]?.v;       // W열 직함
-          const 구역 = row.c[27]?.v;       // AB열 구역
-          const 블럭 = row.c[28]?.v;       // AC열 블럭
-          const 행 = row.c[29]?.v;         // AD열 행
-          const 열 = row.c[30]?.v;         // AE열 열
+          const 성함 = row.c[20]?.v;       // U열
+          const 소속 = row.c[21]?.v;       // V열
+          const 직함 = row.c[22]?.v;       // W열
+          const 구역 = row.c[27]?.v;       // AB열
+          const 블럭 = row.c[28]?.v;       // AC열
+          const 행 = row.c[29]?.v;         // AD열
+          const 열 = row.c[30]?.v;         // AE열
 
           if (성함 && 성함.includes(name)) {
-            // 구역에 'GATE' 붙이기 (예: '2F 1' -> '2F 1GATE')
             let 구역표시 = 구역;
             if (구역 && /\d$/.test(구역)) {
               구역표시 += 'GATE';
             }
-
             const seat = `${구역표시} ${블럭}-${행}-${열}`;
             matches.push(`${성함} (${소속 || '소속없음'}, ${직함 || '직함없음'}) — 좌석: ${seat}`);
           }
@@ -117,4 +168,3 @@
   </script>
 </body>
 </html>
-
