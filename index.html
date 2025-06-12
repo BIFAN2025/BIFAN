@@ -111,29 +111,25 @@
     </p>
     <input type="text" id="nameInput" placeholder="성함을 입력하세요" />
     <br />
-    <button id="searchBtn">조회</button>
+    <button onclick="lookupSeat()">조회</button>
     <div class="result" id="result"></div>
   </div>
 
   <script>
-    const sheetUrl = 'https://script.google.com/macros/s/AKfycbwbN_NQCrDA3OiZcpABl2hSUZhSS-8b4GP_kfI-o55w-bIhtrSqjAX38IjtyKUFT7I8iYA/exec';
-
-    const nameInput = document.getElementById('nameInput');
-    const searchBtn = document.getElementById('searchBtn');
-    const resultEl = document.getElementById('result');
+    const sheetUrl = 'https://script.google.com/macros/s/AKfycbxPyRY90D97xbhUEBcvbuplZfn4wjuyXP2UL7f2Q3D5NEW_yVdX8C7G5tVopgsJ6jE0_w/exec';
 
     async function lookupSeat() {
-      const name = nameInput.value.trim();
+      const name = document.getElementById('nameInput').value.trim();
+      const resultEl = document.getElementById('result');
+      resultEl.textContent = '조회 중...';
+
       if (!name) {
         resultEl.textContent = '이름을 입력해 주세요.';
         return;
       }
 
-      resultEl.textContent = '조회 중...';
-
       try {
-        const response = await fetch(`${sheetUrl}?name=${encodeURIComponent(name)}`);
-        if (!response.ok) throw new Error('네트워크 응답 오류');
+        const response = await fetch(sheetUrl + '?name=' + encodeURIComponent(name));
         const data = await response.json();
 
         if (data.length === 0) {
@@ -141,16 +137,16 @@
           return;
         }
 
-        resultEl.innerHTML = data.map(item => {
-          return `<div>${item.name} (${item.affiliation}, ${item.title}) — 좌석: ${item.seat}</div>`;
+        const html = data.map(entry => {
+          return `<div>${entry.name} (${entry.affiliation || '소속없음'}, ${entry.title || '직함없음'}) — 좌석: ${entry.seat}</div>`;
         }).join('');
+
+        resultEl.innerHTML = html;
       } catch (error) {
-        resultEl.textContent = '데이터를 불러오는 중 오류가 발생했습니다.';
         console.error(error);
+        resultEl.textContent = '데이터를 불러오는 중 오류가 발생했습니다.';
       }
     }
-
-    searchBtn.addEventListener('click', lookupSeat);
   </script>
 </body>
 </html>
