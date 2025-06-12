@@ -111,60 +111,46 @@
     </p>
     <input type="text" id="nameInput" placeholder="성함을 입력하세요" />
     <br />
-    <button onclick="lookupSeat()">조회</button>
+    <button id="searchBtn">조회</button>
     <div class="result" id="result"></div>
   </div>
 
   <script>
-    const sheetUrl = 'https://script.google.com/macros/s/AKfycbwbEzruS3WsPHMugC3F5r0eMoXLLeGgOiWPSwRDO5LtIhOcgRj3C3p14jm3y2zMGIz6Sw/exec';
+    const sheetUrl = 'https://script.google.com/macros/s/AKfycbwbN_NQCrDA3OiZcpABl2hSUZhSS-8b4GP_kfI-o55w-bIhtrSqjAX38IjtyKUFT7I8iYA/exec';
+
+    const nameInput = document.getElementById('nameInput');
+    const searchBtn = document.getElementById('searchBtn');
+    const resultEl = document.getElementById('result');
 
     async function lookupSeat() {
-      const name = document.getElementById('nameInput').value.trim();
-      const resultEl = document.getElementById('result');
-      resultEl.textContent = '조회 중...';
-
+      const name = nameInput.value.trim();
       if (!name) {
         resultEl.textContent = '이름을 입력해 주세요.';
         return;
       }
 
+      resultEl.textContent = '조회 중...';
+
       try {
-        const res = await fetch(sheetUrl);
-        const text = await res.text();
-        const json = JSON.parse(text.substr(47).slice(0, -2));
+        const response = await fetch(`${sheetUrl}?name=${encodeURIComponent(name)}`);
+        if (!response.ok) throw new Error('네트워크 응답 오류');
+        const data = await response.json();
 
-        const rows = json.table.rows;
-        const matches = [];
-
-        for (let row of rows) {
-          const 성함 = row.c[20]?.v;       // U열
-          const 소속 = row.c[21]?.v;       // V열
-          const 직함 = row.c[22]?.v;       // W열
-          const 구역 = row.c[27]?.v;       // AB열
-          const 블럭 = row.c[28]?.v;       // AC열
-          const 행 = row.c[29]?.v;         // AD열
-          const 열 = row.c[30]?.v;         // AE열
-
-          if (성함 && 성함.includes(name)) {
-            let 구역표시 = 구역;
-            if (구역 && /\d$/.test(구역)) {
-              구역표시 += 'GATE';
-            }
-            const seat = `${구역표시} ${블럭}-${행}-${열}`;
-            matches.push(`${성함} (${소속 || '소속없음'}, ${직함 || '직함없음'}) — 좌석: ${seat}`);
-          }
-        }
-
-        if (matches.length > 0) {
-          resultEl.innerHTML = matches.map(m => `<div>${m}</div>`).join('');
-        } else {
+        if (data.length === 0) {
           resultEl.textContent = '등록되지 않은 이름입니다.';
+          return;
         }
+
+        resultEl.innerHTML = data.map(item => {
+          return `<div>${item.name} (${item.affiliation}, ${item.title}) — 좌석: ${item.seat}</div>`;
+        }).join('');
       } catch (error) {
         resultEl.textContent = '데이터를 불러오는 중 오류가 발생했습니다.';
         console.error(error);
       }
     }
+
+    searchBtn.addEventListener('click', lookupSeat);
   </script>
 </body>
 </html>
