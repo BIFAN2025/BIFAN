@@ -10,65 +10,67 @@
       background: url('https://www.bifan.kr/presskit/2025/10/images/press_10_01.jpg') no-repeat center center fixed;
       background-size: cover;
       color: #fff;
-      padding: 50px 20px;
+      padding: 30px 15px;
       text-align: center;
       min-height: 100vh;
       margin: 0;
       box-sizing: border-box;
     }
     .overlay {
-      background-color: rgba(0,0,0,0.6);
+      background-color: rgba(0,0,0,0.65);
       max-width: 700px;
       margin: auto;
       border-radius: 15px;
-      padding: 30px;
+      padding: 25px 20px;
       box-shadow: 0 0 20px rgba(0,0,0,0.7);
     }
     h1 {
       margin-bottom: 5px;
-      font-size: 2.4em;
+      font-size: 2.2em;
     }
     h3 {
       margin-top: 0;
       font-weight: normal;
-      font-size: 1.3em;
+      font-size: 1.25em;
       color: #ccc;
     }
     p.description {
-      font-size: 1.05em;
-      line-height: 1.6em;
+      font-size: 1em;
+      line-height: 1.5em;
       margin-bottom: 20px;
     }
     .bold {
       font-weight: bold;
     }
     .en-description {
-      font-size: 0.9em;
+      font-size: 0.85em;
       color: #eaeaea;
-      line-height: 1.5em;
+      line-height: 1.4em;
+      margin-bottom: 20px;
     }
     .en-description .bold {
       font-weight: bold;
       color: #fff;
     }
     input[type="text"] {
-      width: 80%;
-      padding: 12px;
-      margin-top: 10px;
+      width: 90%;
+      max-width: 400px;
+      padding: 14px;
+      margin-top: 12px;
       border: none;
       border-radius: 8px;
-      font-size: 1em;
+      font-size: 1.1em;
       box-sizing: border-box;
     }
     button {
-      padding: 12px 25px;
-      margin-top: 15px;
+      padding: 14px 30px;
+      margin-top: 18px;
       background-color: #007BFF;
       color: white;
       border: none;
       border-radius: 8px;
       cursor: pointer;
-      font-size: 1em;
+      font-size: 1.1em;
       transition: background-color 0.3s ease;
     }
     button:hover {
@@ -82,14 +84,53 @@
       color: #000;
       padding: 15px;
       border-radius: 10px;
-      max-height: 300px;
+      max-height: 250px;
       overflow-y: auto;
+      word-break: break-word;
     }
     .result div {
       margin-bottom: 10px;
       padding: 8px;
       background: #eef5ff;
       border-radius: 5px;
+    }
+
+    /* 모바일 대응 */
+    @media screen and (max-width: 480px) {
+      body {
+        padding: 20px 10px;
+      }
+      .overlay {
+        padding: 20px 15px;
+        border-radius: 12px;
+      }
+      h1 {
+        font-size: 1.8em;
+      }
+      h3 {
+        font-size: 1.1em;
+      }
+      p.description {
+        font-size: 0.95em;
+        margin-bottom: 18px;
+      }
+      .en-description {
+        font-size: 0.75em;
+        margin-bottom: 18px;
+      }
+      input[type="text"] {
+        width: 95%;
+        font-size: 1em;
+        padding: 12px;
+      }
+      button {
+        font-size: 1em;
+        padding: 12px 25px;
+      }
+      .result {
+        font-size: 1em;
+        max-height: 200px;
+      }
     }
   </style>
 </head>
@@ -129,34 +170,11 @@
       }
 
       try {
-        const res = await fetch(sheetUrl);
-        const text = await res.text();
-        const json = JSON.parse(text.substr(47).slice(0, -2));
+        const res = await fetch(`${sheetUrl}?name=${encodeURIComponent(name)}`);
+        const data = await res.json();
 
-        const rows = json.table.rows;
-        const matches = [];
-
-        for (let row of rows) {
-          const 성함 = row.c[20]?.v;       // U열
-          const 소속 = row.c[21]?.v;       // V열
-          const 직함 = row.c[22]?.v;       // W열
-          const 구역 = row.c[27]?.v;       // AB열
-          const 블럭 = row.c[28]?.v;       // AC열
-          const 행 = row.c[29]?.v;         // AD열
-          const 열 = row.c[30]?.v;         // AE열
-
-          if (성함 && 성함.includes(name)) {
-            let 구역표시 = 구역;
-            if (구역 && /\d$/.test(구역)) {
-              구역표시 += 'GATE';
-            }
-            const seat = `${구역표시} ${블럭}-${행}-${열}`;
-            matches.push(`${성함} (${소속 || '소속없음'}, ${직함 || '직함없음'}) — 좌석: ${seat}`);
-          }
-        }
-
-        if (matches.length > 0) {
-          resultEl.innerHTML = matches.map(m => `<div>${m}</div>`).join('');
+        if (data.length > 0) {
+          resultEl.innerHTML = data.map(d => `<div>${d.name} (${d.affiliation}, ${d.title}) — 좌석: ${d.seat}</div>`).join('');
         } else {
           resultEl.textContent = '등록되지 않은 이름입니다.';
         }
